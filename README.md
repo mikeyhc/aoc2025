@@ -5,3 +5,4 @@ https://adventofcode.com/2025
 * [day 1 - secret entrance](src/secret_entrance.erl)
 * [day 2 - gift shop](src/gift_shop.erl)
 * [day 3 - lobby](src/lobby.erl)
+* [day 4 - printing department](src/printing_department.erl)
