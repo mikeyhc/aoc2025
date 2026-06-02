@@ -1,14 +1,14 @@
 -module(aoc_common).
 
 -export([read_and_parse_lines/2, read_and_parse_csv_line/2, read_map/1,
-         render_map/1]).
+         render_map/1, read_and_parse_two_part/3]).
 
 read_and_parse_lines(Parser, Filename) ->
     lists:foldl(fun(F, V) -> F(V) end,
                 file:read_file(Filename),
                 [fun({ok, V}) -> binary_to_list(V) end,
                  fun(V) -> string:split(V, "\n", all) end,
-                 fun(V) -> lists:filter(fun(X) -> X =/= "" end, V) end,
+                 fun filter_empty/1,
                  fun(V) -> lists:map(Parser, V) end
                 ]).
 
@@ -22,6 +22,19 @@ read_and_parse_csv_line(Parser, Filename) ->
                  fun(V) -> string:split(V, ",", all) end,
                  fun(V) -> lists:map(Parser, V) end
                 ]).
+
+read_and_parse_two_part(Parser1, Parser2, Filename) ->
+    lists:foldl(fun(F, V) -> F(V) end,
+                file:read_file(Filename),
+                [fun({ok, V}) -> binary_to_list(V) end,
+                 fun(V) -> string:split(V, "\n", all) end,
+                 fun(V) -> lists:splitwith(fun(X) -> X =/= "" end, V) end,
+                 fun({L, R}) -> {filter_empty(L), filter_empty(R)} end,
+                 fun({L, R}) ->
+                         {lists:map(Parser1, L), lists:map(Parser2, R)}
+                 end
+                ]).
+
 
 read_map(Filename) ->
     {ok, BinContents} = file:read_file(Filename),
@@ -53,3 +66,5 @@ render_row(RowIdx, Map, Cols) ->
                                       [maps:get({RowIdx, ColIdx}, Map)|Acc0]
                               end,
                               [], lists:seq(1, Cols))).
+
+filter_empty(List) -> lists:filter(fun(X) -> X =/= "" end, List).
